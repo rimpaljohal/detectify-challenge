@@ -1,0 +1,15 @@
+The foundation setup for AWS EKS Cluster using terraform.
+1. Three terraform files were used to create the foundation AWS EKS cluster in us-east-1 region. Name of the files were
+   1. eks.tf
+   2. output.tf
+   3. provider.tf
+   
+ 2. Execution of terraform (terraform apply) has created
+    1. Detectify_eks_cluster - aws_eks_cluster
+    2. Detectify_node - aws_eks_node_group
+ 
+ 3. Added worker node in the cluster.
+ 
+ 4. Output terraform file provided output for eks_cluster_certificat_authority and eks_cluster_endpoint
+ 
+ 5. terraform init was executed to get the latest terraform AWS provider version using provider.tf file >> provider.aws: version = "~> 2.70"
