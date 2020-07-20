@@ -1,0 +1,31 @@
+app-docker folder will have the two files. 
+
+1. dockerfile
+2. index.html
+
+Dockerfile has referenced the BusyBox webserver. BusyBox HTTP Daemon (httpd) webserver is a simple web server implementation without wide configuration options.
+
+For the first string "Hello World", the below command were executed
+
+1. docker build -t hello-world .
+2. docker run -p 80:8008 hello-world
+3. login to your docker hub account
+Rimpals-MBP:app rimpaljohal$ docker login
+Authenticating with existing credentials...
+Login Succeeded
+4. docker tag hello-world rimpaljohal/hello-world
+5. docker push rimpaljohal/hello-world:latest
+
+For the second string "Hello World, again" , I have updated index.html with "Hello world, again", build and released a new version of hello-world image:
+
+1. docker build -t hello-world .
+2. docker run -p 80:8008 hello-world
+3. login to your docker hub account
+Rimpals-MBP:app rimpaljohal$ docker login
+Authenticating with existing credentials...
+Login Succeeded
+4. docker tag hello-world rimpaljohal/hello-world:2.0
+5. docker push rimpaljohal/hello-world:2.0
+
+Above commands/steps will push two files with different tags(latest and "2.0") to the docker hub repository. This will be further referenced in values.yaml in helloworld-chart.
+
