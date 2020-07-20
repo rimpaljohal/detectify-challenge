@@ -1,6 +1,7 @@
 App deployment in the AWS EKS Kubernetes cluster was done using a helm chart. Helm is the package manager for Kubernetes and it allows to deploy the app using a single “helm install” command.
 Below is the list of commands to execute
-1. Enable ‘kubectl’ access for AWS EKS cluster from the machine
+
+<h1> 1. Enable ‘kubectl’ access for AWS EKS cluster from the machine </h1>
 aws eks --region us-east-1 update-kubeconfig --name Detectify_eks_cluster
 Check by executing the command
 kubectl get nodes
