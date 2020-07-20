@@ -1,1 +1,61 @@
-This is hello world helm chart files
+App deployment in the AWS EKS Kubernetes cluster was done using a helm chart. Helm is the package manager for Kubernetes and it allows to deploy the app using a single “helm install” command.
+Below is the list of commands to execute
+1. Enable ‘kubectl’ access for AWS EKS cluster from the machine
+aws eks --region us-east-1 update-kubeconfig --name Detectify_eks_cluster
+Check by executing the command
+kubectl get nodes
+
+2. Install helm on the machine
+
+curl -LO https://git.io/get_helm.sh
+chmod 700 get_helm.sh
+./get_helm.s
+
+3. Execute helm init 
+This will install Tiller to your running Kubernetes cluster.
+It will also set up any necessary local configuration.
+
+4. Execute helm version >> To check the client and server version of helm install
+
+5. Creating the helloworld-chart for deployment on kubernets using the helm
+  
+  >> helm create helloworld-chart 
+
+This will create the helloworld-chart folder with the following listed files and folders
+  >>Chart.yaml
+  >>charts(folder)
+  >>templates(folder)
+  >>values.yaml
+
+Apply some changes on values.yaml
+____________________________________________
+replicaCount: 1
+
+image:
+  repository: rimpaljohal/hello-world
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  name: hello-world
+  type: LoadBalancer
+  externalPort: 80
+  internalPort: 8008
+  port: 80
+  _________________________________________
+  
+  
+  go to the deployment folder
+  
+  Apply some changes on deployment.yaml (give the container port)
+  
+  ports:
+            - name: http
+              containerPort: 8008
+              protocol: TCP
+              
+   ______________________________________
