@@ -28,7 +28,7 @@ This will create the helloworld-chart folder with the following listed files and
   >>templates(folder)
   >>values.yaml
 
-Apply some changes on values.yaml
+Apply three changes on values.yaml i.e, in repository, tag and service.
 ____________________________________________
 replicaCount: 1
 
@@ -52,7 +52,7 @@ service:
   
   go to the deployment folder
   
-  Apply some changes on deployment.yaml (give the container port)
+  Apply one change in deployment.yaml (give the container port)
   
   ports:
             - name: http
@@ -60,3 +60,125 @@ service:
               protocol: TCP
               
    ______________________________________
+
+6. Once the files are updated, package the chart
+
+helm package helloworld-chart --debug
+
+helm package helloworld-chart --debug
+Successfully packaged chart and saved it to: /Users/rimpaljohal/Downloads/Detectify/helloworld-chart-0.1.0.tgz
+[debug] Successfully saved /Users/rimpaljohal/Downloads/Detectify/helloworld-chart-0.1.0.tgz to /Users/rimpaljohal/.helm/repository/local
+
+Above command will create the tar file in the directory named as
+
+helloworld-chart-0.1.0.tgz
+
+7. helm install helloworld-chart-0.1.0.tgz --name helloworld
+
+Above command will deploy the helloword on container
+
+8. Once deployed on container, run the below command to get the details of the running service on container. This will give the external IP of the service which is exposed to the internet.
+
+
+kubectl get svc --watch
+
+Rimpals-MBP:Detectify rimpaljohal$ kubectl get svc
+NAME                           TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)        AGE
+helloworld-helloworld-chart    LoadBalancer   10.100.15.80     a283915e7f5394a96a500f30aa10244f-1437370688.us-east-1.elb.amazonaws.com   80:32445/TCP   4h36m
+
+9. Ping the external IP from terminal and get the IP address of AWS ELB. Map that IP address in the /etc/hosts file with challenge.local. Once the update on the hosts file is completed.Hit the browser with challenge.local and this should display "Hello World"
+
+10. To display the second String "Hello World, again" repeat few steps in the above process
+
+11. Update the index.html file in the /app directory and push the new tag named as "2.0" to the docker hub
+
+12. Now docker hub will have two tags in the rimpaljohal/hello-world repository. These tags are
+ latest
+ "2.0"
+ 
+ 13. Update Chart.yaml and values.yaml in helloword-chart folder. These two files need to update with the below changes
+ 
+ Chart.yaml>>
+ apiVersion: v1
+appVersion: "2.0". >> change from 1.0
+description: A Helm chart for Kubernetes
+name: helloworld-chart
+version: 0.1.1  >> change from 0.1.0
+
+values.yaml
+
+replicaCount: 1
+
+image:
+  repository: rimpaljohal/hello-world
+  tag: '2.0'  >> change from latest
+  pullPolicy: IfNotPresent
+  
+14. Once the change is saved in the two files. Packaged the helloworld-chart again.This will created the tar file helloworld-chart-0.1.1.tgz
+helm package helloworld-chart --debug
+Successfully packaged chart and saved it to: /Users/rimpaljohal/Downloads/Detectify/helloworld-chart-0.1.1.tgz
+[debug] Successfully saved /Users/rimpaljohal/Downloads/Detectify/helloworld-chart-0.1.1.tgz to /Users/rimpaljohal/.helm/repository/local
+
+15. Now run the helm install to deploy the package on Kubernetes container
+
+helm install helloworld-chart-0.1.1.tgz --name helloworld2
+
+Note that I am using helloworld2 in the --name parameter because I have already used helloworld in the earlier deployment. Re-running the above install with name as helloworld will give the below error
+
+Rimpals-MBP:Detectify rimpaljohal$ helm install helloworld-chart-0.1.1.tgz --name helloworld
+Error: a release named helloworld already exists.
+Run: helm ls --all helloworld; to check the status of the release
+Or run: helm del --purge helloworld; to delete it
+
+16. Executing the helm install helloworld-chart-0.1.1.tgz --name helloworld2 will deploy the service on the pod with the below output
+
+Rimpals-MBP:Detectify rimpaljohal$ helm install helloworld-chart-0.1.1.tgz --name helloworld2
+NAME:   helloworld2
+LAST DEPLOYED: Sun Jul 19 17:05:54 2020
+NAMESPACE: default
+STATUS: DEPLOYED
+
+RESOURCES:
+==> v1/Deployment
+NAME                          READY  UP-TO-DATE  AVAILABLE  AGE
+helloworld2-helloworld-chart  0/1    1           0          1s
+
+==> v1/Pod(related)
+NAME                                           READY  STATUS             RESTARTS  AGE
+helloworld2-helloworld-chart-57bddb564c-7mbxx  0/1    ContainerCreating  0         1s
+
+==> v1/Service
+NAME                          TYPE          CLUSTER-IP      EXTERNAL-IP  PORT(S)       AGE
+helloworld2-helloworld-chart  LoadBalancer  10.100.132.174  <pending>    80:30284/TCP  1s
+
+==> v1/ServiceAccount
+NAME                          SECRETS  AGE
+helloworld2-helloworld-chart  1        1s
+
+
+NOTES:
+1. Get the application URL by running these commands:
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace default svc -w helloworld2-helloworld-chart'
+  export SERVICE_IP=$(kubectl get svc --namespace default helloworld2-helloworld-chart --template "{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}")
+  echo http://$SERVICE_IP:80
+
+
+17. Once service is deployed, get the running services using the kubectl command. This time the output will show the two services i.e, one for "Hello World" and another for "Hello World, again"
+
+
+Rimpals-MBP:Detectify rimpaljohal$ kubectl get svc
+NAME                           TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)        AGE
+helloworld-helloworld-chart    LoadBalancer   10.100.15.80     a283915e7f5394a96a500f30aa10244f-1437370688.us-east-1.elb.amazonaws.com   80:32445/TCP   4h36m
+helloworld2-helloworld-chart   LoadBalancer   10.100.132.174   a58f77a4ebab14b57a131f2b58a9f4e7-2025572287.us-east-1.elb.amazonaws.com   80:30284/TCP   12m
+kubernetes                     ClusterIP      10.100.0.1       <none>                                                                    443/TCP        5h5m
+
+18. The above two services are running on two pods which are shown below
+
+Rimpals-MBP:etc rimpaljohal$ kubectl get pods --output=wide
+NAME                                            READY   STATUS    RESTARTS   AGE     IP              NODE                            NOMINATED NODE   READINESS GATES
+helloworld-helloworld-chart-6f776c7c8-68rkx     1/1     Running   0          5h43m   172.31.88.150   ip-172-31-84-170.ec2.internal   <none>           <none>
+helloworld2-helloworld-chart-57bddb564c-7mbxx   1/1     Running   0          79m     172.31.94.178   ip-172-31-84-170.ec2.internal   <none>           <none>
+
+19. In the last get the IP of the AWS ELB for the second service "Hello World, again" and map it in the hosts file with detectify.challenge.local. After saving the change in the hosts file when detectify.challenge.local will call in the browser it will display "Hello World, again"
+
