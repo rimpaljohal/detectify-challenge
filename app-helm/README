@@ -8,10 +8,6 @@ kubectl get nodes
 
 2. Install helm on the machine
 
-curl -LO https://git.io/get_helm.sh
-chmod 700 get_helm.sh
-./get_helm.s
-
 3. Execute helm init 
 This will install Tiller to your running Kubernetes cluster.
 It will also set up any necessary local configuration.
